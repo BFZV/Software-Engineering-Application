@@ -4,21 +4,21 @@
   <Platform>DesktopGL</Platform>
   <Config />
   <SourceFiles>
-    <File>c:/Users/bouaf/Downloads/Game/MyGame/Content/dragon-studio-zombie-sound-2-357976.mp3</File>
-    <File>c:/Users/bouaf/Downloads/Game/MyGame/Content/dragon-studio-zombie-sound-357975.mp3</File>
-    <File>c:/Users/bouaf/Downloads/Game/MyGame/Content/EnergyIcon.png</File>
-    <File>c:/Users/bouaf/Downloads/Game/MyGame/Content/File.spritefont</File>
-    <File>c:/Users/bouaf/Downloads/Game/MyGame/Content/freesound_community-menu-selection-102220.mp3</File>
-    <File>c:/Users/bouaf/Downloads/Game/MyGame/Content/HealthIcon.png</File>
-    <File>c:/Users/bouaf/Downloads/Game/MyGame/Content/PlayerSprite.png</File>
-    <File>c:/Users/bouaf/Downloads/Game/MyGame/Content/ShopWeapon.png</File>
-    <File>c:/Users/bouaf/Downloads/Game/MyGame/Content/skyscraper_seven-click-buttons-ui-menu-sounds-effects-button-7-203601.mp3</File>
-    <File>c:/Users/bouaf/Downloads/Game/MyGame/Content/TitleBackground.png</File>
-    <File>c:/Users/bouaf/Downloads/Game/MyGame/Content/TitleDisplayFont.spritefont</File>
-    <File>c:/Users/bouaf/Downloads/Game/MyGame/Content/TitleFont.spritefont</File>
-    <File>c:/Users/bouaf/Downloads/Game/MyGame/Content/UnknownWeapon.png</File>
-    <File>c:/Users/bouaf/Downloads/Game/MyGame/Content/Upgrade1Weapon.png</File>
-    <File>c:/Users/bouaf/Downloads/Game/MyGame/Content/ZombieSprite.png</File>
+    <File>C:/Users/bouaf/Downloads/Game/MyGame/Content/dragon-studio-zombie-sound-2-357976.mp3</File>
+    <File>C:/Users/bouaf/Downloads/Game/MyGame/Content/dragon-studio-zombie-sound-357975.mp3</File>
+    <File>C:/Users/bouaf/Downloads/Game/MyGame/Content/EnergyIcon.png</File>
+    <File>C:/Users/bouaf/Downloads/Game/MyGame/Content/File.spritefont</File>
+    <File>C:/Users/bouaf/Downloads/Game/MyGame/Content/freesound_community-menu-selection-102220.mp3</File>
+    <File>C:/Users/bouaf/Downloads/Game/MyGame/Content/HealthIcon.png</File>
+    <File>C:/Users/bouaf/Downloads/Game/MyGame/Content/PlayerSprite.png</File>
+    <File>C:/Users/bouaf/Downloads/Game/MyGame/Content/ShopWeapon.png</File>
+    <File>C:/Users/bouaf/Downloads/Game/MyGame/Content/skyscraper_seven-click-buttons-ui-menu-sounds-effects-button-7-203601.mp3</File>
+    <File>C:/Users/bouaf/Downloads/Game/MyGame/Content/TitleBackground.png</File>
+    <File>C:/Users/bouaf/Downloads/Game/MyGame/Content/TitleDisplayFont.spritefont</File>
+    <File>C:/Users/bouaf/Downloads/Game/MyGame/Content/TitleFont.spritefont</File>
+    <File>C:/Users/bouaf/Downloads/Game/MyGame/Content/UnknownWeapon.png</File>
+    <File>C:/Users/bouaf/Downloads/Game/MyGame/Content/Upgrade1Weapon.png</File>
+    <File>C:/Users/bouaf/Downloads/Game/MyGame/Content/ZombieSprite.png</File>
   </SourceFiles>
   <DestFiles>
     <File xsi:nil="true" />

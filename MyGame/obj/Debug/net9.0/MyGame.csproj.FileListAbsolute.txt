@@ -53,3 +53,4 @@ c:\Users\bouaf\Downloads\Game\MyGame\obj\Debug\net9.0\refint\MyGame.dll
 c:\Users\bouaf\Downloads\Game\MyGame\obj\Debug\net9.0\MyGame.pdb
 c:\Users\bouaf\Downloads\Game\MyGame\obj\Debug\net9.0\MyGame.genruntimeconfig.cache
 c:\Users\bouaf\Downloads\Game\MyGame\obj\Debug\net9.0\ref\MyGame.dll
+C:\Users\bouaf\Downloads\Game\MyGame\obj\Debug\net9.0\MyGame.sourcelink.json
