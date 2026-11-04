@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SourceFileCollection xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Profile>Reach</Profile>
+  <Platform>DesktopGL</Platform>
+  <Config />
+  <SourceFiles>
+    <File>c:/Users/ACC01/Desktop/SE/Game/Content/dragon-studio-zombie-sound-2-357976.mp3</File>
+    <File>c:/Users/ACC01/Desktop/SE/Game/Content/dragon-studio-zombie-sound-357975.mp3</File>
+    <File>c:/Users/ACC01/Desktop/SE/Game/Content/EnergyIcon.png</File>
+    <File>c:/Users/ACC01/Desktop/SE/Game/Content/File.spritefont</File>
+    <File>c:/Users/ACC01/Desktop/SE/Game/Content/freesound_community-menu-selection-102220.mp3</File>
+    <File>c:/Users/ACC01/Desktop/SE/Game/Content/HealthIcon.png</File>
+    <File>c:/Users/ACC01/Desktop/SE/Game/Content/PlayerSprite.png</File>
+    <File>c:/Users/ACC01/Desktop/SE/Game/Content/ShopWeapon.png</File>
+    <File>c:/Users/ACC01/Desktop/SE/Game/Content/skyscraper_seven-click-buttons-ui-menu-sounds-effects-button-7-203601.mp3</File>
+    <File>c:/Users/ACC01/Desktop/SE/Game/Content/TitleBackground.png</File>
+    <File>c:/Users/ACC01/Desktop/SE/Game/Content/TitleDisplayFont.spritefont</File>
+    <File>c:/Users/ACC01/Desktop/SE/Game/Content/TitleFont.spritefont</File>
+    <File>c:/Users/ACC01/Desktop/SE/Game/Content/UnknownWeapon.png</File>
+    <File>c:/Users/ACC01/Desktop/SE/Game/Content/Upgrade1Weapon.png</File>
+    <File>c:/Users/ACC01/Desktop/SE/Game/Content/ZombieSprite.png</File>
+  </SourceFiles>
+  <DestFiles>
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File>GameFont.spritefont</File>
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+  </DestFiles>
+</SourceFileCollection>

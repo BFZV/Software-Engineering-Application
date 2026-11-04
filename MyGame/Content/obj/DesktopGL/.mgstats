@@ -1,0 +1,16 @@
+Source File,Dest File,Processor Type,Content Type,Source File Size,Dest File Size,Build Seconds
+"c:/Users/ACC01/Desktop/SE/Game/Content/dragon-studio-zombie-sound-2-357976.mp3","c:/Users/ACC01/Desktop/SE/Game/Content/bin/DesktopGL/dragon-studio-zombie-sound-2-357976.xnb","SongProcessor","SongContent",259134,153,1.1470542
+"c:/Users/ACC01/Desktop/SE/Game/Content/dragon-studio-zombie-sound-357975.mp3","c:/Users/ACC01/Desktop/SE/Game/Content/bin/DesktopGL/dragon-studio-zombie-sound-357975.xnb","SongProcessor","SongContent",259134,151,0.2412925
+"c:/Users/ACC01/Desktop/SE/Game/Content/EnergyIcon.png","c:/Users/ACC01/Desktop/SE/Game/Content/bin/DesktopGL/EnergyIcon.xnb","TextureProcessor","Texture2DContent",24762,250725,0.0437421
+"c:/Users/ACC01/Desktop/SE/Game/Content/File.spritefont","c:/Users/ACC01/Desktop/SE/Game/Content/bin/DesktopGL/GameFont.xnb","FontDescriptionProcessor","SpriteFontContent",2068,21530,0.2096913
+"c:/Users/ACC01/Desktop/SE/Game/Content/freesound_community-menu-selection-102220.mp3","c:/Users/ACC01/Desktop/SE/Game/Content/bin/DesktopGL/freesound_community-menu-selection-102220.xnb","SongProcessor","SongContent",9600,159,0.7132239
+"c:/Users/ACC01/Desktop/SE/Game/Content/HealthIcon.png","c:/Users/ACC01/Desktop/SE/Game/Content/bin/DesktopGL/HealthIcon.xnb","TextureProcessor","Texture2DContent",39519,270485,0.0207986
+"c:/Users/ACC01/Desktop/SE/Game/Content/PlayerSprite.png","c:/Users/ACC01/Desktop/SE/Game/Content/bin/DesktopGL/PlayerSprite.xnb","TextureProcessor","Texture2DContent",34098,471373,0.1511315
+"c:/Users/ACC01/Desktop/SE/Game/Content/ShopWeapon.png","c:/Users/ACC01/Desktop/SE/Game/Content/bin/DesktopGL/ShopWeapon.xnb","TextureProcessor","Texture2DContent",14316,160861,0.014525
+"c:/Users/ACC01/Desktop/SE/Game/Content/skyscraper_seven-click-buttons-ui-menu-sounds-effects-button-7-203601.mp3","c:/Users/ACC01/Desktop/SE/Game/Content/bin/DesktopGL/skyscraper_seven-click-buttons-ui-menu-sounds-effects-button-7-203601.xnb","SongProcessor","SongContent",65201,187,0.162944
+"c:/Users/ACC01/Desktop/SE/Game/Content/TitleBackground.png","c:/Users/ACC01/Desktop/SE/Game/Content/bin/DesktopGL/TitleBackground.xnb","TextureProcessor","Texture2DContent",694374,2289749,0.1149439
+"c:/Users/ACC01/Desktop/SE/Game/Content/TitleDisplayFont.spritefont","c:/Users/ACC01/Desktop/SE/Game/Content/bin/DesktopGL/TitleDisplayFont.xnb","FontDescriptionProcessor","SpriteFontContent",490,267290,0.1280509
+"c:/Users/ACC01/Desktop/SE/Game/Content/TitleFont.spritefont","c:/Users/ACC01/Desktop/SE/Game/Content/bin/DesktopGL/TitleFont.xnb","FontDescriptionProcessor","SpriteFontContent",490,136218,0.0274195
+"c:/Users/ACC01/Desktop/SE/Game/Content/UnknownWeapon.png","c:/Users/ACC01/Desktop/SE/Game/Content/bin/DesktopGL/UnknownWeapon.xnb","TextureProcessor","Texture2DContent",5941,152169,0.0064619
+"c:/Users/ACC01/Desktop/SE/Game/Content/Upgrade1Weapon.png","c:/Users/ACC01/Desktop/SE/Game/Content/bin/DesktopGL/Upgrade1Weapon.xnb","TextureProcessor","Texture2DContent",29831,276697,0.0137391
+"c:/Users/ACC01/Desktop/SE/Game/Content/ZombieSprite.png","c:/Users/ACC01/Desktop/SE/Game/Content/bin/DesktopGL/ZombieSprite.xnb","TextureProcessor","Texture2DContent",29077,355573,0.1456879

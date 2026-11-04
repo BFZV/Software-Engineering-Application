@@ -1,0 +1,101 @@
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+using System;
+
+namespace MyGame.Sprite;
+
+public class PlayerSprite: Sprite
+{
+    public PlayerSprite(Texture2D textureImage, Vector2 position, Point frameSize,
+     int collisionOffset, Point currentFrame, Point sheetSize, Vector2 speed, float scale):
+     base(textureImage, position, frameSize, collisionOffset, currentFrame, sheetSize, speed)
+    {
+        this.scale = scale;
+    }
+
+    public PlayerSprite(Texture2D textureImage, Vector2 position, Point frameSize, int collisionOffset,
+     Point currentFrame, Point sheetSize, Vector2 speed, int millisecondsPerFrame):
+     base(textureImage, position, frameSize, collisionOffset, currentFrame, sheetSize, speed, millisecondsPerFrame)
+    {
+    }
+
+    public bool IsSprinting { get; set; }
+    public override Vector2 direction
+    {
+        get
+        {
+            // Vector2 inputDirection = Vector2.Zero;
+            // if (Keyboard.GetState().IsKeyDown(Keys.LeftShift)) {
+            //     if (Keyboard.GetState().IsKeyDown(Keys.W))
+            //         inputDirection.Y -= 1.5f;
+            //     if (Keyboard.GetState().IsKeyDown(Keys.S))
+            //         inputDirection.Y += 1.5f;
+            //     if (Keyboard.GetState().IsKeyDown(Keys.A))
+            //         inputDirection.X -= 1.5f;
+            //     if (Keyboard.GetState().IsKeyDown(Keys.D))
+            //         inputDirection.X += 1.5f; 
+            // } else {
+            //     if (Keyboard.GetState().IsKeyDown(Keys.W))
+            //         inputDirection.Y -= 1;
+            //     if (Keyboard.GetState().IsKeyDown(Keys.S))
+            //         inputDirection.Y += 1;
+            //     if (Keyboard.GetState().IsKeyDown(Keys.A))
+            //         inputDirection.X -= 1;
+            //     if (Keyboard.GetState().IsKeyDown(Keys.D))
+            //         inputDirection.X += 1;
+            // }
+
+            // if (inputDirection != Vector2.Zero)
+            // {
+            //     inputDirection.Normalize();
+            // }
+
+            // return inputDirection * speed;
+
+            Vector2 inputDirection = Vector2.Zero;
+            KeyboardState keyboard = Keyboard.GetState();
+
+            float multiplier = IsSprinting ? 1.5f : 1.0f;
+
+            if (keyboard.IsKeyDown(Keys.W))
+                inputDirection.Y -= 1;
+
+            if (keyboard.IsKeyDown(Keys.S))
+                inputDirection.Y += 1;
+
+            if (keyboard.IsKeyDown(Keys.A))
+                inputDirection.X -= 1;
+
+            if (keyboard.IsKeyDown(Keys.D))
+                inputDirection.X += 1;
+
+            if (inputDirection != Vector2.Zero)
+                inputDirection.Normalize();
+
+            return inputDirection * speed * multiplier;
+        }
+    }
+
+    private void UpdateRotation()
+    {
+        MouseState mouse = Mouse.GetState();
+
+        // Find the center of the player on screen.
+        Vector2 playerCenter = position +
+        new Vector2(frameSize.X, frameSize.Y) * scale / 2f;
+
+        // Find the direction from the player to the mouse.
+        float deltaX = mouse.X - playerCenter.X;
+        float deltaY = mouse.Y - playerCenter.Y;
+
+        rotation = (float)Math.Atan2(deltaY, deltaX);
+    }
+    
+    public override void Update(GameTime gameTime, Rectangle clientBounds)
+    {
+        UpdateRotation();
+        base.Update(gameTime, clientBounds);
+    }
+
+}
