@@ -304,7 +304,6 @@ public class SpriteManager : Microsoft.Xna.Framework.DrawableGameComponent
         }
         
         weaponManager.Draw(spriteBatch);
-        weaponManager.DrawHud(spriteBatch, font, Game.GraphicsDevice.Viewport.Bounds);
 
         spriteBatch.End();
         base.Draw(gameTime);

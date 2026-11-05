@@ -9,7 +9,7 @@ public readonly struct WeaponStats
     // Name shown in the weapon HUD.
     public string Name { get; }
 
-    // Damage dealt by ONE bullet (or one shotgun pellet).
+    // Damage dealt by one individual bullet
     public int Damage { get; }
 
     // Seconds that must pass between two shots.

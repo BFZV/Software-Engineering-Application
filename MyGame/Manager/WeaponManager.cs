@@ -7,9 +7,8 @@ using Microsoft.Xna.Framework.Input;
 namespace MyGame;
 
 // Connects the player to the weapons.
-//   Left mouse button -> fire the equipped weapon toward the mouse pointer
-//   1 / 2             -> equip the pistol / shotgun
-//
+// Left mouse button -> fire the equipped weapon toward the mouse pointer
+// (TEMP) 1 / 2 -> equip the pistol / shotgun
 // The shot starts at the tip of the player's gun and aims the way the player
 // sprite is already facing. The bullets it creates are handed to the
 // BulletManager, which tests them against the enemy sprites.
@@ -101,33 +100,5 @@ public class WeaponManager
     public void Draw(SpriteBatch spriteBatch)
     {
         bulletManager.Draw(spriteBatch);
-    }
-
-    // Small heads-up display in the bottom-left corner: which weapon is equipped and its ammo.
-    public void DrawHud(SpriteBatch spriteBatch, SpriteFont font, Rectangle screenBounds)
-    {
-        string weaponLine = "";
-
-        for (int i = 0; i < weapons.Count; i++)
-        {
-            string label = (i + 1) + ": " + weapons[i].Name;
-            weaponLine += (i == currentIndex ? "[" + label + "]" : " " + label + " ") + "   ";
-        }
-
-        string statusLine = "Ammo: Infinite    Bullets in flight: " + BulletsInFlight;
-
-        Vector2 position = new Vector2(20, screenBounds.Bottom - 70);
-
-        DrawShadowedText(spriteBatch, font, weaponLine, position, Color.Yellow);
-        DrawShadowedText(spriteBatch, font, statusLine, position + new Vector2(0, 28), Color.White);
-    }
-
-    // Draws text twice (black first, then the real color one pixel up-left) so it
-    // stays readable on any background.
-    private static void DrawShadowedText(
-        SpriteBatch spriteBatch, SpriteFont font, string text, Vector2 position, Color color)
-    {
-        spriteBatch.DrawString(font, text, position + new Vector2(1, 1), Color.Black);
-        spriteBatch.DrawString(font, text, position, color);
     }
 }

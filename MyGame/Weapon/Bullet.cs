@@ -60,7 +60,7 @@ public class Bullet
         return !screenBounds.Contains(Position);
     }
 
-    // Draws the bullet by stretching a 1x1 white pixel into a small rotated rectangle.
+    // Draws bullets using a stretched 1x1 white pixel into a small rotated rectangle.
     public void Draw(SpriteBatch spriteBatch, Texture2D pixel)
     {
         spriteBatch.Draw(
