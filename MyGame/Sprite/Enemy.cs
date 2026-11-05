@@ -2,7 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace MyGame.Sprite;
+namespace MyGame;
 
 public class Enemy
 {
@@ -17,6 +17,9 @@ public class Enemy
     private Vector2 velocity;
     private Vector2 direction;
     private EnemySprite enemySprite;
+    public EnemySprite Sprite => enemySprite;
+    public int Health => health;
+    public bool IsDead => health <= 0;
 
     public Enemy(EnemySprite enemySprite, Vector2 position, float speed, int health)
     {
@@ -27,11 +30,17 @@ public class Enemy
         this.max_health = health;
     }
 
-
-    public virtual void Hurting()
+    public virtual void TakeDamage(int amount)
     {
         //When player bullet hits
         //subtract damage from health
+        if (IsDead)
+            return;
+
+        health -= amount;
+
+        if (health < 0)
+            health = 0;
     }
 
 

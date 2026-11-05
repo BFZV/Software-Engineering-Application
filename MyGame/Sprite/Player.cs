@@ -130,7 +130,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
-namespace MyGame.Sprite;
+namespace MyGame;
 
 public class Player
 {

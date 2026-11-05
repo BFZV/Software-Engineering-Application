@@ -1,21 +1,28 @@
 
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 using System.Collections.Generic;
 
-namespace MyGame.Sprite;
+namespace MyGame;
 public class SpriteManager : Microsoft.Xna.Framework.DrawableGameComponent
 {
     private SpriteBatch spriteBatch;
     private PlayerSprite playerSprite;
     private Player player;
-    private EnemySprite enemySprite;
+    private Texture2D zombieTexture;
+    private WeaponManager weaponManager;
+    
+    // Check
+    //Frame size and scale of the zombie sprite, used whenever a zombie is created.
+    private static readonly Point ZombieFrameSize = new Point(322, 276);
+    private const float ZombieScale = 0.5f;
 
     //Debugging tool
     private SpriteFont font;
 
-    private List<EnemySprite> enemyList =
-    new List<EnemySprite>();
+    //Every enemy that is currently alive.
+    private List<Enemy> enemies = new List<Enemy>();
     private List<Sprite> spriteList = new List<Sprite>();
     public SpriteManager(Game game) : base(game)
     {
@@ -40,16 +47,98 @@ public class SpriteManager : Microsoft.Xna.Framework.DrawableGameComponent
         
         player = new Player(playerSprite, 100, 100);
 
+        /*
         enemySprite = new EnemySprite(
             //textureImage, position, frameSize, collisionOffset, currentFrame, sheetSize, speed, scale, playerSprite);
             Game.Content.Load<Texture2D>("ZombieSprite"),new Vector2(300, 300), 
             new Point(322,276), 10, new Point(0,0), new Point(1,1), new Vector2(5,5),
             0.5f, player.Sprite);
+        */
+
+        zombieTexture = Game.Content.Load<Texture2D>("ZombieSprite");
+
+        SpawnZombie(new Vector2(300, 300));
 
         spriteList.Add(playerSprite);
-        spriteList.Add(enemySprite);
+        // spriteList.Add(enemySprite);
+
+        //1x1 white image that the bullets stretch into little rectangles.
+        Texture2D bulletPixel = new Texture2D(Game.GraphicsDevice, 1, 1);
+        bulletPixel.SetData(new[] { Color.White });
+
+        weaponManager = new WeaponManager(bulletPixel);
         
         base.LoadContent();
+    }
+
+    protected override void OnEnabledChanged(object sender, EventArgs args)
+    {
+        base.OnEnabledChanged(sender, args);
+
+        //When gameplay becomes active again, the mouse click that started or
+        //resumed the game must not also fire a shot.
+        if (Enabled)
+            weaponManager?.RequireTriggerRelease();
+    }
+
+    private void SpawnZombie(Vector2 position)
+    {
+        EnemySprite zombieSprite = new EnemySprite(
+            //textureImage, position, frameSize, collisionOffset, currentFrame, sheetSize, speed, scale, playerSprite);
+            zombieTexture, position, ZombieFrameSize, 10, new Point(0,0), new Point(1,1),
+            new Vector2(5,5), ZombieScale, player.Sprite);
+
+        enemies.Add(new Zombie(zombieSprite, position, 5f, 100));
+        spriteList.Add(zombieSprite);
+    }
+
+    //Removes enemies that have no health left.
+    private void RemoveDeadEnemies(Rectangle screenBounds)
+    {
+        for (int i = enemies.Count - 1; i >= 0; i--)
+        {
+            if (enemies[i].IsDead)
+            {
+                spriteList.Remove(enemies[i].Sprite);
+                enemies.RemoveAt(i);
+            }
+        }
+
+        //TEMPORARY: there is no wave spawner yet, so a new zombie walks in whenever
+        //the last one dies. This keeps the weapons testable. Replace with wave logic later.
+        if (enemies.Count == 0)
+        {
+            SpawnZombie(GetCornerFarthestFromPlayer(screenBounds));
+        }
+    }
+
+    //Picks the screen corner farthest from the player so a new zombie never appears on top of them.
+    private Vector2 GetCornerFarthestFromPlayer(Rectangle screenBounds)
+    {
+        float zombieWidth = ZombieFrameSize.X * ZombieScale;
+        float zombieHeight = ZombieFrameSize.Y * ZombieScale;
+
+        Vector2[] corners =
+        {
+            new Vector2(screenBounds.Left, screenBounds.Top),
+            new Vector2(screenBounds.Right - zombieWidth, screenBounds.Top),
+            new Vector2(screenBounds.Left, screenBounds.Bottom - zombieHeight),
+            new Vector2(screenBounds.Right - zombieWidth, screenBounds.Bottom - zombieHeight)
+        };
+
+        Vector2 playerCenter = player.Sprite.Center;
+        Vector2 farthest = corners[0];
+
+        foreach (Vector2 corner in corners)
+        {
+            if (Vector2.DistanceSquared(corner, playerCenter) >
+                Vector2.DistanceSquared(farthest, playerCenter))
+            {
+                farthest = corner;
+            }
+        }
+
+        return farthest;
     }
 
     private bool CanMoveTo(Sprite movingSprite,Vector2 newPosition,
@@ -138,19 +227,21 @@ public class SpriteManager : Microsoft.Xna.Framework.DrawableGameComponent
             );
         }
 
-        //Move the enemy toward the player.
-        MoveSprite(
-            enemySprite,
-            enemySprite.direction,
-            false,
-            bounds
-        );
-
-        //Check for collisions between the player and enemy.
-        if (!player.IsDead && 
-        player.Sprite.collisionRect.Intersects(enemySprite.collisionRect))
+         //Move every enemy toward the player and check whether it touches the player.
+        foreach (Enemy enemy in enemies)
         {
-            player.TakeDamage(10);    
+            MoveSprite(
+                enemy.Sprite,
+                enemy.Sprite.direction,
+                false,
+                bounds
+            );
+
+            if (!player.IsDead &&
+                player.Sprite.collisionRect.Intersects(enemy.Sprite.collisionRect))
+            {
+                player.TakeDamage(10);
+            }
         }
 
         //Update animations.
@@ -159,7 +250,17 @@ public class SpriteManager : Microsoft.Xna.Framework.DrawableGameComponent
             player.Sprite.Update(gameTime, bounds);
         }
 
-        enemySprite.Update(gameTime, bounds);
+        foreach (Enemy enemy in enemies)
+        {
+            enemy.Sprite.Update(gameTime, bounds);
+        }
+
+        //Fire the equipped weapon and move the bullets. This runs after the player
+        //sprite update so the gun aims with the newest rotation.
+        weaponManager.Update(gameTime, player.Sprite, !player.IsDead, bounds, enemies);
+
+        //Enemies that ran out of health are removed from the game.
+        RemoveDeadEnemies(bounds);
 
         base.Update(gameTime);
     }
@@ -197,7 +298,14 @@ public class SpriteManager : Microsoft.Xna.Framework.DrawableGameComponent
 
 
         player.Sprite.Draw(gameTime, spriteBatch);
-        enemySprite.Draw(gameTime, spriteBatch);
+        foreach (Enemy enemy in enemies)
+        {
+            enemy.Sprite.Draw(gameTime, spriteBatch);
+        }
+        
+        weaponManager.Draw(spriteBatch);
+        weaponManager.DrawHud(spriteBatch, font, Game.GraphicsDevice.Viewport.Bounds);
+
         spriteBatch.End();
         base.Draw(gameTime);
     }

@@ -1,6 +1,6 @@
 using Microsoft.Xna.Framework.Input;
 
- namespace MyGame.UI;
+ namespace MyGame;
 
 // Reads input on the title screen.
 public class TitleScreen

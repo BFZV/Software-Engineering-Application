@@ -2,7 +2,7 @@
  using Microsoft.Xna.Framework;
  using Microsoft.Xna.Framework.Graphics;
 
- namespace MyGame.UI;
+ namespace MyGame;
 
 // Defines a bar that can store values and draw itself.
 public sealed class Bar

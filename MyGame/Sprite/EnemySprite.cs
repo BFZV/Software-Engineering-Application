@@ -2,7 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 
-namespace MyGame.Sprite;
+namespace MyGame;
 public class EnemySprite: Sprite
 {
     private PlayerSprite playerSprite;

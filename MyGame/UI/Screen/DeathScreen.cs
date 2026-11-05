@@ -2,7 +2,7 @@
  using Microsoft.Xna.Framework;
  using Microsoft.Xna.Framework.Graphics;
 
- namespace MyGame.UI;
+ namespace MyGame;
 
 // Holds helper code for drawing the game-over screen.
 internal static class DeathScreen

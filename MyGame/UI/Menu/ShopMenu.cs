@@ -3,7 +3,7 @@
  using Microsoft.Xna.Framework.Graphics;
  using Microsoft.Xna.Framework.Input;
 
-namespace MyGame.UI;
+namespace MyGame;
 
 // Contains code for drawing the shop screen and its buttons.
 internal static class ShopMenu

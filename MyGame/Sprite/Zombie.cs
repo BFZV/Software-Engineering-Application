@@ -1,6 +1,6 @@
 using Microsoft.Xna.Framework;
 
-namespace MyGame.Sprite;
+namespace MyGame;
 
 public class Zombie : Enemy
 {
@@ -13,14 +13,15 @@ public class Zombie : Enemy
     {
     }
 
-    public override void Hurting()
+    public override void TakeDamage(int amount)
     {
-        //When player bullet hits
-        //zombie.health -= damage;
-        if (health <= 0)
+        base.TakeDamage(amount);
+
+        if (IsDead)
         {
-            //Zombie dies, play death animation, remove from game
+            //Zombie dies, play death animation
             //give currency to player.
+            //(SpriteManager removes it from the game.)
         }
     }
 }

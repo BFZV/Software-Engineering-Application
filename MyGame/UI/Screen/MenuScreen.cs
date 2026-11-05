@@ -3,7 +3,7 @@
  using Microsoft.Xna.Framework.Graphics;
  using Microsoft.Xna.Framework.Input;
 
- namespace MyGame.UI;
+ namespace MyGame;
 
 // Lists the menu choices the player can select.
 public enum MenuOption

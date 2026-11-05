@@ -1,7 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace MyGame.Sprite;
+namespace MyGame;
 
 public abstract class Sprite
 {
@@ -20,6 +20,9 @@ public abstract class Sprite
     public Vector2 Position => position;
     public Point FrameSize => frameSize;
     public float Scale => scale;
+    public float Rotation => rotation;
+    // Middle of the sprite on screen (position is the top-left corner).
+    public Vector2 Center => position + new Vector2(frameSize.X, frameSize.Y) * scale / 2f;
 
     public Sprite(
         Texture2D textureImage,

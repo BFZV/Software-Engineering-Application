@@ -3,7 +3,7 @@
  using Microsoft.Xna.Framework.Graphics;
  using Microsoft.Xna.Framework.Input;
 
- namespace MyGame.UI;
+ namespace MyGame;
 
 // Lists the possible results from updating the game screen.
 public enum GameScreenResult

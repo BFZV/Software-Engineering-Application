@@ -3,7 +3,7 @@
  using Microsoft.Xna.Framework;
  using Microsoft.Xna.Framework.Graphics;
 
- namespace MyGame.UI;
+ namespace MyGame;
 
 // Holds helper methods used to draw parts of the game's interface.
 internal static class UIHelper
