@@ -73,6 +73,9 @@ public class Game1 : Microsoft.Xna.Framework.Game
         spriteManager = new SpriteManager(this);
         Components.Add(spriteManager);
 
+        // Money for every enemy that dies goes to the player's total on the game screen.
+        spriteManager.EnemyKilled += currency => _gameScreen?.AddMoney(currency);
+
         spriteManager.Enabled = false;
         spriteManager.Visible = false;
 
@@ -221,7 +224,7 @@ public class Game1 : Microsoft.Xna.Framework.Game
             {
                 // Create a menu and show it.
                 _menuScreen = new MenuScreen();
-                _showMenu = true;
+                _showMenu = true; 
             }
         }
         // Otherwise, update the menu because it is showing.
@@ -283,6 +286,16 @@ public class Game1 : Microsoft.Xna.Framework.Game
             {
                 SetGameState(GameState.Playing);
             }
+        }
+
+        // TEMP ========================================================================
+        // Give the weapons what was bought in the shop (shotgun owned, upgrade levels).
+        if (_gameScreen != null)
+        {
+            spriteManager.ApplyShopState(
+                _gameScreen.ShotgunPurchased,
+                _gameScreen.PistolUpgradeLevel,
+                _gameScreen.ShotgunUpgradeLevel);
         }
         base.Update(gameTime);
     }
