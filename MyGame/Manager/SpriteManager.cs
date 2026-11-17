@@ -10,20 +10,31 @@ public class SpriteManager : Microsoft.Xna.Framework.DrawableGameComponent
     private SpriteBatch spriteBatch;
     private PlayerSprite playerSprite;
     private Player player;
+    private Texture2D playerPistolTexture;
+    private Texture2D playerShotgunTexture;
     private Texture2D zombieTexture;
     private WeaponManager weaponManager;
+    private WaveManager waveManager;
+    private readonly Random random = new Random();
     
     // Check
     //Frame size and scale of the zombie sprite, used whenever a zombie is created.
     private static readonly Point ZombieFrameSize = new Point(322, 276);
-    private const float ZombieScale = 0.5f;
-
-    //Debugging tool
-    private SpriteFont font;
+    private const float ZombieScale = 0.35f;
+    private const float ZombieSpeed = 2.5f;
 
     //Every enemy that is currently alive.
     private List<Enemy> enemies = new List<Enemy>();
     private List<Sprite> spriteList = new List<Sprite>();
+    public event Action<int> ZombieKilled;
+    public event Action WaveCompleted;
+    public int PlayerHealth => player.Health;
+    public int PlayerMaxHealth => player.MaxHealth;
+    public float PlayerStamina => player.Stamina;
+    public float PlayerMaxStamina => player.MaxStamina;
+    public int CurrentWave => waveManager.CurrentWave;
+    public string CurrentWaveRomanNumeral => waveManager.GetRomanNumeral();
+
     public SpriteManager(Game game) : base(game)
     {
     }
@@ -37,27 +48,20 @@ public class SpriteManager : Microsoft.Xna.Framework.DrawableGameComponent
     {
         spriteBatch = new SpriteBatch(Game.GraphicsDevice);
 
-        //Debugging tool
-        font = Game.Content.Load<SpriteFont>("GameFont");
-
+        playerPistolTexture = Game.Content.Load<Texture2D>("PlayerPistol");
+        playerShotgunTexture = Game.Content.Load<Texture2D>("PlayerShotgun");
         playerSprite = new PlayerSprite(
             //textureImage, position, frameSize, collisionOffset, currentFrame, sheetSize, speed, scale);
-            Game.Content.Load<Texture2D>("PlayerSprite"),Vector2.Zero, new Point(438,269),
-            10, new Point(0,0), new Point(1,1), new Vector2(6,6), 0.5f);
+            playerPistolTexture, Vector2.Zero, new Point(playerPistolTexture.Width, playerPistolTexture.Height),
+            10, new Point(0,0), new Point(1,1), new Vector2(6,6), 0.4f);
         
         player = new Player(playerSprite, 100, 100);
 
-        /*
-        enemySprite = new EnemySprite(
-            //textureImage, position, frameSize, collisionOffset, currentFrame, sheetSize, speed, scale, playerSprite);
-            Game.Content.Load<Texture2D>("ZombieSprite"),new Vector2(300, 300), 
-            new Point(322,276), 10, new Point(0,0), new Point(1,1), new Vector2(5,5),
-            0.5f, player.Sprite);
-        */
-
         zombieTexture = Game.Content.Load<Texture2D>("ZombieSprite");
 
-        SpawnZombie(new Vector2(300, 300));
+        waveManager = new WaveManager();
+        waveManager.Reset();
+        SpawnWave();
 
         spriteList.Add(playerSprite);
         // spriteList.Add(enemySprite);
@@ -81,15 +85,115 @@ public class SpriteManager : Microsoft.Xna.Framework.DrawableGameComponent
             weaponManager?.RequireTriggerRelease();
     }
 
+    public void ResetForNewGame()
+    {
+        playerSprite.SetAppearance(playerPistolTexture);
+        Rectangle bounds = Game.GraphicsDevice.Viewport.Bounds;
+        Vector2 spawnPosition = new(
+            (bounds.Width - playerSprite.FrameSize.X * playerSprite.Scale) / 2f,
+            (bounds.Height - playerSprite.FrameSize.Y * playerSprite.Scale) / 2f);
+        player.Respawn(spawnPosition);
+        enemies.Clear();
+        spriteList.Clear();
+        spriteList.Add(playerSprite);
+        waveManager.Reset();
+        weaponManager.Reset();
+        SpawnWave();
+    }
+
+    public void StartNextWave(bool shotgunPurchased)
+    {
+        player.RestoreHealth();
+        if (shotgunPurchased)
+        {
+            playerSprite.SetAppearance(playerShotgunTexture);
+            weaponManager.EquipShotgun();
+        }
+    }
+
+    public void SetWeaponUpgradeLevels(bool shotgun, int fireRateLevel, int damageLevel)
+    {
+        weaponManager.SetUpgradeLevels(shotgun, fireRateLevel, damageLevel);
+    }
+
     private void SpawnZombie(Vector2 position)
     {
         EnemySprite zombieSprite = new EnemySprite(
             //textureImage, position, frameSize, collisionOffset, currentFrame, sheetSize, speed, scale, playerSprite);
             zombieTexture, position, ZombieFrameSize, 10, new Point(0,0), new Point(1,1),
-            new Vector2(5,5), ZombieScale, player.Sprite);
+            new Vector2(ZombieSpeed, ZombieSpeed), ZombieScale, player.Sprite);
 
-        enemies.Add(new Zombie(zombieSprite, position, 5f, 100));
+        enemies.Add(new Zombie(zombieSprite, position, ZombieSpeed, 100));
         spriteList.Add(zombieSprite);
+    }
+
+    private void SpawnWave()
+    {
+        Rectangle screenBounds = Game.GraphicsDevice.Viewport.Bounds;
+
+        for (int i = 0; i < waveManager.EnemiesInCurrentWave; i++)
+        {
+            SpawnZombie(GetRandomSpawnPosition(screenBounds));
+        }
+    }
+
+    private Vector2 GetRandomSpawnPosition(Rectangle screenBounds)
+    {
+        int width = (int)(ZombieFrameSize.X * ZombieScale);
+        int height = (int)(ZombieFrameSize.Y * ZombieScale);
+        int minX = screenBounds.Left;
+        int maxX = Math.Max(minX, screenBounds.Right - width);
+        int minY = screenBounds.Top;
+        int maxY = Math.Max(minY, screenBounds.Bottom - height);
+        Vector2 candidate = Vector2.Zero;
+
+        for (int attempt = 0; attempt < 100; attempt++)
+        {
+            int side = random.Next(4);
+            candidate = side switch
+            {
+                0 => new Vector2(screenBounds.Left - width - 2, random.Next(minY, maxY + 1)),
+                1 => new Vector2(screenBounds.Right + 2, random.Next(minY, maxY + 1)),
+                2 => new Vector2(random.Next(minX, maxX + 1), screenBounds.Top - height - 2),
+                _ => new Vector2(random.Next(minX, maxX + 1), screenBounds.Bottom + 2)
+            };
+
+            if (IsSpawnPositionFree(candidate))
+                return candidate;
+        }
+
+        float rightOfAllSprites = screenBounds.Right + 2;
+
+        foreach (Enemy enemy in enemies)
+        {
+            rightOfAllSprites = Math.Max(
+                rightOfAllSprites,
+                enemy.Sprite.Position.X + enemy.Sprite.FrameSize.X * enemy.Sprite.Scale);
+        }
+
+        return new Vector2(rightOfAllSprites + 2, screenBounds.Top);
+    }
+
+    private bool IsSpawnPositionFree(Vector2 position)
+    {
+        int width = (int)(ZombieFrameSize.X * ZombieScale);
+        int height = (int)(ZombieFrameSize.Y * ZombieScale);
+        Rectangle candidate = new Rectangle(
+            (int)position.X - 1,
+            (int)position.Y - 1,
+            width + 2,
+            height + 2);
+
+        if (candidate.Intersects(GetSeparatedBounds(playerSprite, playerSprite.Position)))
+            return false;
+
+        foreach (Enemy enemy in enemies)
+        {
+            if (candidate.Intersects(GetSeparatedBounds(enemy.Sprite, enemy.Sprite.Position)))
+                return false;
+        }
+
+        return true;
     }
 
     //Removes enemies that have no health left.
@@ -99,16 +203,17 @@ public class SpriteManager : Microsoft.Xna.Framework.DrawableGameComponent
         {
             if (enemies[i].IsDead)
             {
+                ZombieKilled?.Invoke(500);
                 spriteList.Remove(enemies[i].Sprite);
                 enemies.RemoveAt(i);
             }
         }
 
-        //TEMPORARY: there is no wave spawner yet, so a new zombie walks in whenever
-        //the last one dies. This keeps the weapons testable. Replace with wave logic later.
         if (enemies.Count == 0)
         {
-            SpawnZombie(GetCornerFarthestFromPlayer(screenBounds));
+            waveManager.AdvanceWave();
+            SpawnWave();
+            WaveCompleted?.Invoke();
         }
     }
 
@@ -144,12 +249,7 @@ public class SpriteManager : Microsoft.Xna.Framework.DrawableGameComponent
     private bool CanMoveTo(Sprite movingSprite,Vector2 newPosition,
     bool constrainToScreen, Rectangle screenBounds)
     {
-        Rectangle nextBounds = new Rectangle(
-            (int)newPosition.X,
-            (int)newPosition.Y,
-            (int)(movingSprite.FrameSize.X * movingSprite.Scale),
-            (int)(movingSprite.FrameSize.Y * movingSprite.Scale)
-        );
+        Rectangle nextBounds = GetSpriteBounds(movingSprite, newPosition);
 
         //Keep the player inside the screen.
         if (constrainToScreen &&
@@ -161,17 +261,39 @@ public class SpriteManager : Microsoft.Xna.Framework.DrawableGameComponent
             return false;
         }
 
-        //Check against every other sprite.
-        // foreach (Sprite other in spriteList)
-        // {
-        //     if (ReferenceEquals(other, movingSprite))
-        //         continue;
+        if (movingSprite is EnemySprite)
+        {
+            Rectangle separatedBounds = GetSeparatedBounds(movingSprite, newPosition);
 
-        //     if (nextBounds.Intersects(other.collisionRect))
-        //         return false;
-        // }
+            foreach (Enemy enemy in enemies)
+            {
+                if (ReferenceEquals(enemy.Sprite, movingSprite))
+                    continue;
+
+                if (separatedBounds.Intersects(
+                    GetSeparatedBounds(enemy.Sprite, enemy.Sprite.Position)))
+                {
+                    return false;
+                }
+            }
+        }
 
         return true;
+    }
+
+    private static Rectangle GetSpriteBounds(Sprite sprite, Vector2 position)
+    {
+        return new Rectangle(
+            (int)position.X,
+            (int)position.Y,
+            (int)(sprite.FrameSize.X * sprite.Scale),
+            (int)(sprite.FrameSize.Y * sprite.Scale));
+    }
+
+    private static Rectangle GetSeparatedBounds(Sprite sprite, Vector2 position)
+    {
+        Rectangle bounds = GetSpriteBounds(sprite, position);
+        return new Rectangle(bounds.X - 1, bounds.Y - 1, bounds.Width + 2, bounds.Height + 2);
     }
 
     private void MoveSprite(
@@ -271,31 +393,6 @@ public class SpriteManager : Microsoft.Xna.Framework.DrawableGameComponent
         return;
         
         spriteBatch.Begin();
-
-        // Display health.
-        spriteBatch.DrawString(
-            font,
-            "Health: " + player.Health,
-            new Vector2(10, 10),
-            Color.Black
-        );
-
-        // Display stamina.
-        spriteBatch.DrawString(
-            font,
-            "Stamina: " + player.Stamina.ToString("F1"),
-            new Vector2(10, 35),
-            Color.Black
-        );
-
-        // Display sprint status.
-        spriteBatch.DrawString(
-            font,
-            "Sprinting: " + player.Sprite.IsSprinting,
-            new Vector2(10, 60),
-            Color.Black
-        );
-
 
         player.Sprite.Draw(gameTime, spriteBatch);
         foreach (Enemy enemy in enemies)

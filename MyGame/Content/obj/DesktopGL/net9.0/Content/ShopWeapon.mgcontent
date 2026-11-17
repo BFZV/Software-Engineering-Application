@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <SourceFile>C:/Users/bouaf/Downloads/Game/MyGame/Content/ShopWeapon.png</SourceFile>
-  <SourceTime>2026-11-04T16:43:50.4553219-05:00</SourceTime>
+  <SourceTime>2026-11-17T15:16:50.4482712-05:00</SourceTime>
   <DestFile>C:/Users/bouaf/Downloads/Game/MyGame/Content/bin/DesktopGL/Content/ShopWeapon.xnb</DestFile>
-  <DestTime>2026-11-04T17:08:09.2625551-05:00</DestTime>
+  <DestTime>2026-11-17T15:26:27.254621-05:00</DestTime>
   <Importer>TextureImporter</Importer>
   <ImporterTime>2026-08-14T17:50:10-04:00</ImporterTime>
   <Processor>TextureProcessor</Processor>
