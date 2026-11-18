@@ -14,24 +14,28 @@ public abstract class Weapon
 {
     // Seconds left before the weapon is allowed to fire again.
     private float cooldown;
-
-    // The weapon's base numbers, before any shop upgrade.
     private readonly WeaponStats baseStats;
 
-    // Every upgrade level above 1 adds this fraction of the base damage (level 5 = double damage).
-    private const float DamageBonusPerLevel = 0.25f;
+    protected WeaponStats Stats
+    {
+        get
+        {
+            float fireRateMultiplier = 1f + 0.25f * (FireRateLevel - 1);
+            float damageMultiplier = 1f + 0.25f * (DamageLevel - 1);
 
-    // Shop upgrade level of this weapon (1 = not upgraded).
-    public int UpgradeLevel { get; set; } = 1;
+            return new WeaponStats(
+                baseStats.Name,
+                (int)Math.Round(baseStats.Damage * damageMultiplier),
+                baseStats.FireDelay / fireRateMultiplier,
+                baseStats.BulletSpeed,
+                baseStats.BulletSize,
+                baseStats.BulletColor);
+        }
+    }
 
-    // False until the weapon has been bought in the shop.
-    public bool IsUnlocked { get; set; } = true;
-
-    // The numbers bullets are created from: the base stats with the upgrade bonus added to the damage.
-    protected WeaponStats Stats => baseStats.WithDamage(
-        (int)Math.Round(baseStats.Damage * (1f + DamageBonusPerLevel * (UpgradeLevel - 1))));
-
-    public string Name => baseStats.Name;
+    public string Name => Stats.Name;
+    public int FireRateLevel { get; private set; } = 1;
+    public int DamageLevel { get; private set; } = 1;
 
     // True when enough time has passed since the last shot.
     public bool IsReady => cooldown <= 0f;
@@ -46,6 +50,22 @@ public abstract class Weapon
     {
         if (cooldown > 0f)
             cooldown -= elapsedSeconds;
+    }
+
+    public void ResetCooldown()
+    {
+        cooldown = 0f;
+    }
+
+    public void SetUpgradeLevels(int fireRateLevel, int damageLevel)
+    {
+        FireRateLevel = Math.Clamp(fireRateLevel, 1, 5);
+        DamageLevel = Math.Clamp(damageLevel, 1, 5);
+    }
+
+    public void ResetUpgrades()
+    {
+        SetUpgradeLevels(1, 1);
     }
 
     // Fires the weapon if its cooldown is over. Returns true if a shot was fired.

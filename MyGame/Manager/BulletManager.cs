@@ -29,6 +29,11 @@ public class BulletManager
         bullets.Add(bullet);
     }
 
+    public void Clear()
+    {
+        bullets.Clear();
+    }
+
     public void Update(GameTime gameTime, Rectangle screenBounds, IReadOnlyList<Enemy> enemies)
     {
         float elapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;

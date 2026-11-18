@@ -10,6 +10,8 @@
     <File>C:/Users/bouaf/Downloads/Game/MyGame/Content/File.spritefont</File>
     <File>C:/Users/bouaf/Downloads/Game/MyGame/Content/freesound_community-menu-selection-102220.mp3</File>
     <File>C:/Users/bouaf/Downloads/Game/MyGame/Content/HealthIcon.png</File>
+    <File>C:/Users/bouaf/Downloads/Game/MyGame/Content/PlayerPistol.png</File>
+    <File>C:/Users/bouaf/Downloads/Game/MyGame/Content/PlayerShotgun.png</File>
     <File>C:/Users/bouaf/Downloads/Game/MyGame/Content/PlayerSprite.png</File>
     <File>C:/Users/bouaf/Downloads/Game/MyGame/Content/ShopWeapon.png</File>
     <File>C:/Users/bouaf/Downloads/Game/MyGame/Content/skyscraper_seven-click-buttons-ui-menu-sounds-effects-button-7-203601.mp3</File>
@@ -17,6 +19,7 @@
     <File>C:/Users/bouaf/Downloads/Game/MyGame/Content/TitleDisplayFont.spritefont</File>
     <File>C:/Users/bouaf/Downloads/Game/MyGame/Content/TitleFont.spritefont</File>
     <File>C:/Users/bouaf/Downloads/Game/MyGame/Content/UnknownWeapon.png</File>
+    <File>C:/Users/bouaf/Downloads/Game/MyGame/Content/WaveFiveWeapon.png</File>
     <File>C:/Users/bouaf/Downloads/Game/MyGame/Content/Upgrade1Weapon.png</File>
     <File>C:/Users/bouaf/Downloads/Game/MyGame/Content/ZombieSprite.png</File>
   </SourceFiles>
@@ -25,6 +28,9 @@
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File>GameFont.spritefont</File>
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />

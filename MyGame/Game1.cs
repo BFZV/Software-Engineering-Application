@@ -26,6 +26,7 @@ public class Game1 : Microsoft.Xna.Framework.Game
     private Texture2D _upgrade1Weapon;
     private Texture2D _shopWeapon;
     private Texture2D _unknownWeapon;
+    private Texture2D _waveFiveWeapon;
     private Texture2D _healthIcon;
     private Texture2D _energyIcon;
     private Texture2D _titlePixel;
@@ -57,13 +58,11 @@ public class Game1 : Microsoft.Xna.Framework.Game
     //Sets up the game before loading its content.
     protected override void Initialize()
     {
-        //Get the width and height of your current screen
-        _graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
-        _graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
-
-        //Enable fullscreen without a hardware mode switch (creates a borderless window)
-        _graphics.IsFullScreen = true;
-    
+        //Use a standard windowed game size.
+        _graphics.PreferredBackBufferWidth = 1280;
+        _graphics.PreferredBackBufferHeight = 720;
+        _graphics.IsFullScreen = false;
+       
         //Save the changes
         _graphics.ApplyChanges();
         
@@ -71,6 +70,8 @@ public class Game1 : Microsoft.Xna.Framework.Game
         _titleScreen = new TitleScreen();
 
         spriteManager = new SpriteManager(this);
+        spriteManager.ZombieKilled += OnZombieKilled;
+        spriteManager.WaveCompleted += OnWaveCompleted;
         Components.Add(spriteManager);
 
         // Money for every enemy that dies goes to the player's total on the game screen.
@@ -100,6 +101,7 @@ public class Game1 : Microsoft.Xna.Framework.Game
         _upgrade1Weapon = Content.Load<Texture2D>("Upgrade1Weapon");
         _shopWeapon = Content.Load<Texture2D>("ShopWeapon");
         _unknownWeapon = Content.Load<Texture2D>("UnknownWeapon");
+        _waveFiveWeapon = Content.Load<Texture2D>("WaveFiveWeapon");
         _healthIcon = Content.Load<Texture2D>("HealthIcon");
         _energyIcon = Content.Load<Texture2D>("EnergyIcon");
         //Load the sound used by the menu.
@@ -165,6 +167,9 @@ public class Game1 : Microsoft.Xna.Framework.Game
         // Update the game screen when gameplay is active.
         if (_showGameScreen)
         {
+            _gameScreen.SetHealth(spriteManager.PlayerHealth, spriteManager.PlayerMaxHealth);
+            _gameScreen.SetEnergy(spriteManager.PlayerStamina, spriteManager.PlayerMaxStamina);
+
             // Update gameplay and get any screen action the player selected.
             GameScreenResult result = _gameScreen.Update(
                 // Pass the elapsed time since the previous update.
@@ -206,8 +211,10 @@ public class Game1 : Microsoft.Xna.Framework.Game
             // Check whether the player chose to restart.
             else if (result == GameScreenResult.RestartGame)
             {
+                spriteManager.ResetForNewGame();
+
                 // Create a new game screen to start the game again.
-                _gameScreen = new GameScreen();
+                _gameScreen = CreateGameScreen();
                 SetGameState(GameState.Playing);
                 _showMenu = false;
                 _showGameScreen = true;
@@ -261,8 +268,10 @@ public class Game1 : Microsoft.Xna.Framework.Game
             // Start a new game if the player chose Start Game.
             else if (selectedOption == MenuOption.StartGame)
             {
+                spriteManager.ResetForNewGame();
+
                 // Create a new game screen.
-                _gameScreen = new GameScreen();
+                _gameScreen = CreateGameScreen();
 
                 // Hide the menu and show gameplay.
                 _showMenu = false;
@@ -298,6 +307,31 @@ public class Game1 : Microsoft.Xna.Framework.Game
                 _gameScreen.ShotgunUpgradeLevel);
         }
         base.Update(gameTime);
+    }
+
+    private void OnZombieKilled(int reward)
+    {
+        if (!_showGameScreen || _gameScreen == null)
+            return;
+
+        _gameScreen.AddMoney(reward);
+    }
+
+    private GameScreen CreateGameScreen()
+    {
+        GameScreen gameScreen = new GameScreen();
+        gameScreen.WeaponUpgradeSaved += spriteManager.SetWeaponUpgradeLevels;
+        gameScreen.NextWaveStarted += spriteManager.StartNextWave;
+        return gameScreen;
+    }
+
+    private void OnWaveCompleted()
+    {
+        if (!_showGameScreen || _gameScreen == null)
+            return;
+
+        _gameScreen.OpenShop();
+        SetGameState(GameState.Paused);
     }
 
     // Plays the menu selection sound if audio is turned on.
@@ -429,12 +463,17 @@ public class Game1 : Microsoft.Xna.Framework.Game
                 _shopWeapon,
                 // Pass the image for an unknown weapon.
                 _unknownWeapon,
+                // Pass the rifle shown after wave five.
+                _waveFiveWeapon,
                 // Pass the title background image.
                 _titleBackground,
                 // Pass the screen width.
                 GraphicsDevice.Viewport.Width,
                 // Pass the screen height.
-                GraphicsDevice.Viewport.Height);
+                GraphicsDevice.Viewport.Height,
+                // Show the current wave using the gameplay HUD.
+                spriteManager.CurrentWaveRomanNumeral,
+                spriteManager.CurrentWave);
 
             // Finish drawing gameplay.
             _spriteBatch.End();

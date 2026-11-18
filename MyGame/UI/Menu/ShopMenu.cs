@@ -27,6 +27,10 @@ internal static class ShopMenu
         Texture2D shopWeapon,
         // Image shown for locked or unknown items.
         Texture2D unknownWeapon,
+        // Rifle image revealed after wave five.
+        Texture2D waveFiveWeapon,
+        // The current wave number, used to reveal locked shop items.
+        int currentWave,
         // Width of the game window.
         int screenWidth,
         // Height of the game window.
@@ -139,8 +143,31 @@ internal static class ShopMenu
                 itemSlot.Y + shopIconPadding,
                 itemSlot.Width - shopIconPadding * 2,
                 itemSlot.Height - shopIconPadding * 2);
-            // Draw the shotgun picture for the first item, or an unknown-item picture for the others.
-            spriteBatch.Draw(i == 0 ? shopWeapon : unknownWeapon, shopIconBounds, Color.White);
+            Texture2D itemTexture = i switch
+            {
+                0 => shopWeapon,
+                1 when currentWave >= 6 => waveFiveWeapon,
+                _ => unknownWeapon
+            };
+            if (i == 1 && currentWave >= 6)
+            {
+                float weaponScale = Math.Min(
+                    shopIconBounds.Width / (float)itemTexture.Width,
+                    shopIconBounds.Height / (float)itemTexture.Height) * 1.1f;
+                int weaponWidth = (int)(itemTexture.Width * weaponScale);
+                int weaponHeight = (int)(itemTexture.Height * weaponScale);
+                Rectangle weaponBounds = new(
+                    shopIconBounds.Center.X - weaponWidth / 2,
+                    shopIconBounds.Center.Y - weaponHeight / 2,
+                    weaponWidth,
+                    weaponHeight);
+                spriteBatch.Draw(itemTexture, weaponBounds, Color.White);
+            }
+            else
+            {
+                // Draw the shotgun picture for the first item, or the unknown-item picture for locked items.
+                spriteBatch.Draw(itemTexture, shopIconBounds, Color.White);
+            }
 
             // Draw the text and optional background for this item.
             DrawCard(
@@ -159,10 +186,12 @@ internal static class ShopMenu
                     0 when shotgunPurchased => "Item Purchased",
                     // Show the price for an unpurchased shotgun.
                     0 => "Buy : $5000",
+                    // Show the AR M4 price once it is unlocked.
+                    1 when currentWave >= 6 => "Buy : $10,000",
                     // Show that the second item is not available yet.
-                    1 => "Coming soon",
+                    1 => "will be unlock after wave 5",
                     // Show that the third item is not available yet.
-                    2 => "Coming soon",
+                    2 => "will be unlock after wave 10",
                     // Use a default label for any other item.
                     _ => $"ITEM {i + 1}"
                 },
@@ -170,38 +199,38 @@ internal static class ShopMenu
                 scale,
                 // These item rows are not headers.
                 false,
-                // Draw a box only around the first item.
-                drawBox: i == 0,
-                // Use black text for the locked items.
-                blackText: i > 0,
-                // Use yellow text for the shotgun item.
-                yellowText: i == 0,
+                // Draw boxes around the shotgun and unlocked AR M4 purchase options.
+                drawBox: i == 0 || i == 1 && currentWave >= 6,
+                // Use black text for items that are still locked.
+                blackText: i > 0 && !(i == 1 && currentWave >= 6),
+                // Use yellow text for the shotgun and unlocked AR M4 prices.
+                yellowText: i == 0 || i == 1 && currentWave >= 6,
                 // Use green for the box when the shotgun was purchased.
                 boxColor: i == 0 && shotgunPurchased ? new Color(144, 238, 144) : null,
                 // Highlight the shotgun item when the mouse is over it.
                 isHovered: i == 0 && shotgunHovered);
 
-            // Draw the shotgun name above its item information.
-            if (i == 0)
+            // Draw the weapon name above its item information.
+            if (i == 0 || i == 1 && currentWave >= 6)
             {
-                // Store the shotgun's name.
-                const string shotgunLabel = "Shotgun";
+                string weaponLabel = i == 0 ? "Shotgun" : "AR M4";
                 // Set the name's text size.
-                float shotgunScale = 0.43f * scale;
+                float weaponLabelScale = 0.43f * scale;
                 // Measure the name at the chosen size.
-                Vector2 shotgunSize = font.MeasureString(shotgunLabel) * shotgunScale;
-                // Center the name above the item information.
-                Vector2 shotgunPosition = new(
-                    itemInfo.Center.X - shotgunSize.X / 2,
-                    itemInfo.Y - shotgunSize.Y - 2 * scale);
-                // Draw the shotgun name in red.
+                Vector2 weaponLabelSize = font.MeasureString(weaponLabel) * weaponLabelScale;
+                // Center the name above the item information, with AR M4 slightly higher.
+                float labelOffset = i == 1 ? 6 * scale : 2 * scale;
+                Vector2 weaponLabelPosition = new(
+                    itemInfo.Center.X - weaponLabelSize.X / 2,
+                    itemInfo.Y - weaponLabelSize.Y - labelOffset);
+                // Draw the weapon name in red.
                 spriteBatch.DrawString(
                     // Use the shop font.
                     font,
-                    // Draw the shotgun name.
-                    shotgunLabel,
+                    // Draw the weapon name.
+                    weaponLabel,
                     // Use the centered position calculated above.
-                    shotgunPosition,
+                    weaponLabelPosition,
                     // Use red text.
                     Color.Red,
                     // Do not rotate the text.
@@ -209,7 +238,7 @@ internal static class ShopMenu
                     // Start drawing from the text's top-left corner.
                     Vector2.Zero,
                     // Use the chosen name size.
-                    shotgunScale,
+                    weaponLabelScale,
                     // Do not flip the text.
                     SpriteEffects.None,
                     // Draw at the default depth.
@@ -325,15 +354,49 @@ internal static class ShopMenu
             }
         }
 
-        // Tell the player how to close the shop.
-        UIHelper.DrawText(
+        Rectangle nextWaveBounds = GetNextWaveBounds(screenWidth, screenHeight);
+        bool nextWaveHovered = nextWaveBounds.Contains(Mouse.GetState().Position);
+        spriteBatch.Draw(
+            pixel,
+            nextWaveBounds,
+            nextWaveHovered ? new Color(120, 100, 25, 235) : new Color(75, 75, 75, 235));
+        UIHelper.DrawOutline(
             spriteBatch,
+            pixel,
+            nextWaveBounds,
+            nextWaveHovered ? Color.Yellow : new Color(205, 215, 200));
+
+        string nextWaveLabel = "Next Wave";
+        float nextWaveTextScale = 0.45f * scale;
+        Vector2 nextWaveTextSize = font.MeasureString(nextWaveLabel) * nextWaveTextScale;
+        Vector2 nextWaveTextPosition = new(
+            nextWaveBounds.Center.X - nextWaveTextSize.X / 2,
+            nextWaveBounds.Center.Y - nextWaveTextSize.Y / 2);
+        spriteBatch.DrawString(
             font,
-            "Press ESC to close",
-            panel.X + padding,
-            panel.Bottom - padding - (int)(22 * scale),
+            nextWaveLabel,
+            nextWaveTextPosition,
             Color.Red,
-            0.45f * scale);
+            0,
+            Vector2.Zero,
+            nextWaveTextScale,
+            SpriteEffects.None,
+            0);
+    }
+
+    public static Rectangle GetNextWaveBounds(int screenWidth, int screenHeight)
+    {
+        float scale = UIHelper.GetScale(screenWidth, screenHeight);
+        Rectangle panel = GetPanelBounds(screenWidth, screenHeight);
+        int padding = Math.Max(8, (int)(18 * scale));
+        int width = Math.Max(1, (int)(190 * scale));
+        int height = Math.Max(30, (int)(42 * scale));
+
+        return new Rectangle(
+            panel.Center.X - width / 2,
+            Math.Min(panel.Bottom + padding, screenHeight - height - padding),
+            width,
+            height);
     }
 
     // Returns the position and size of the Shop button.

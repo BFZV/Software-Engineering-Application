@@ -21,6 +21,15 @@ public class PlayerSprite: Sprite
     }
 
     public bool IsSprinting { get; set; }
+
+    public void SetAppearance(Texture2D textureImage)
+    {
+        _textureImage = textureImage;
+        frameSize = new Point(textureImage.Width, textureImage.Height);
+        currentFrame = Point.Zero;
+        sheetSize = new Point(1, 1);
+    }
+
     public override Vector2 direction
     {
         get
@@ -58,16 +67,16 @@ public class PlayerSprite: Sprite
 
             float multiplier = IsSprinting ? 1.5f : 1.0f;
 
-            if (keyboard.IsKeyDown(Keys.W))
+            if (keyboard.IsKeyDown(Keys.W) || keyboard.IsKeyDown(Keys.Up))
                 inputDirection.Y -= 1;
 
-            if (keyboard.IsKeyDown(Keys.S))
+            if (keyboard.IsKeyDown(Keys.S) || keyboard.IsKeyDown(Keys.Down))
                 inputDirection.Y += 1;
 
-            if (keyboard.IsKeyDown(Keys.A))
+            if (keyboard.IsKeyDown(Keys.A) || keyboard.IsKeyDown(Keys.Left))
                 inputDirection.X -= 1;
 
-            if (keyboard.IsKeyDown(Keys.D))
+            if (keyboard.IsKeyDown(Keys.D) || keyboard.IsKeyDown(Keys.Right))
                 inputDirection.X += 1;
 
             if (inputDirection != Vector2.Zero)

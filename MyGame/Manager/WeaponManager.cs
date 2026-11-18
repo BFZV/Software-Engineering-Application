@@ -66,6 +66,31 @@ public class WeaponManager
         triggerArmed = false;
     }
 
+    public void Reset()
+    {
+        bulletManager.Clear();
+        currentIndex = 0;
+
+        foreach (Weapon weapon in weapons)
+        {
+            weapon.ResetCooldown();
+            weapon.ResetUpgrades();
+        }
+
+        RequireTriggerRelease();
+    }
+
+    public void EquipShotgun()
+    {
+        currentIndex = 1;
+    }
+
+    public void SetUpgradeLevels(bool shotgun, int fireRateLevel, int damageLevel)
+    {
+        int weaponIndex = shotgun ? 1 : 0;
+        weapons[weaponIndex].SetUpgradeLevels(fireRateLevel, damageLevel);
+    }
+
     public void Update(
         GameTime gameTime,
         PlayerSprite playerSprite,

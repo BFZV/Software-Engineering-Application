@@ -30,13 +30,19 @@ public class GameScreen
     private bool _shopOpen;
     // Remembers whether the shotgun was purchased.
     private bool _shotgunPurchased;
+    private bool _upgradeMenuOpen;
+    private bool _editingShotgun;
     // Creates a health bar, starting full at 100.
     private readonly Bar _health = new(100, 100);
     // Creates an energy bar, starting full at 100.
     private readonly Bar _energy = new(100, 100);
-    // Stores weapon upgrade levels for the shop.
-    private int _pistolUpgradeLevel = 1;
-    private int _shotgunUpgradeLevel = 1;
+    private int _pistolFireRateLevel = 1;
+    private int _pistolDamageLevel = 1;
+    private int _shotgunFireRateLevel = 1;
+    private int _shotgunDamageLevel = 1;
+    private int _draftFireRateLevel = 1;
+    private int _draftDamageLevel = 1;
+    private string _upgradeStatus = string.Empty;
     // Remembers whether the game is paused.
     private bool _paused;
     // Remembers whether the player has lost.
@@ -63,6 +69,16 @@ public class GameScreen
     public int ShotgunUpgradeLevel => _shotgunUpgradeLevel;
     
     public bool IsDead => _dead;
+    public event Action<bool, int, int> WeaponUpgradeSaved;
+    public event Action<bool> NextWaveStarted;
+
+    public void OpenShop()
+    {
+        _paused = false;
+        _shopOpen = true;
+        SaveInputState(Keyboard.GetState(), Mouse.GetState());
+    }
+
     public GameScreen()
     {
         // Remember the keyboard state when this screen is created.
@@ -162,8 +178,52 @@ public class GameScreen
         // Handle input while the shop is open.
         else if (_shopOpen)
         {
+            if (_upgradeMenuOpen)
+            {
+                if (escapePressed)
+                {
+                    _upgradeMenuOpen = false;
+                    _upgradeStatus = string.Empty;
+                }
+                else if (IsMouseClicked(mouseState) &&
+                         UpgradeWeaponMenu.GetUndoBounds(screenWidth, screenHeight).Contains(mouseState.Position))
+                {
+                    _draftFireRateLevel = GetSavedFireRateLevel();
+                    _draftDamageLevel = GetSavedDamageLevel();
+                    _upgradeStatus = "Changes undone";
+                    playMenuSound();
+                }
+                else if (IsMouseClicked(mouseState) &&
+                         UpgradeWeaponMenu.GetSaveBounds(screenWidth, screenHeight).Contains(mouseState.Position))
+                {
+                    SaveWeaponUpgrades(playMenuSound);
+                }
+                else if (IsMouseClicked(mouseState))
+                {
+                    for (int level = 1; level <= ShopMenu.MaximumUpgradeLevel; level++)
+                    {
+                        if (level >= GetSavedFireRateLevel() &&
+                            UpgradeWeaponMenu.GetFireRateLevelBounds(screenWidth, screenHeight, level)
+                                .Contains(mouseState.Position))
+                        {
+                            _draftFireRateLevel = level;
+                            _upgradeStatus = string.Empty;
+                            break;
+                        }
+
+                        if (level >= GetSavedDamageLevel() &&
+                            UpgradeWeaponMenu.GetDamageLevelBounds(screenWidth, screenHeight, level)
+                                .Contains(mouseState.Position))
+                        {
+                            _draftDamageLevel = level;
+                            _upgradeStatus = string.Empty;
+                            break;
+                        }
+                    }
+                }
+            }
             // Check whether the shotgun purchase button was clicked.
-            if (IsMouseClicked(mouseState) &&
+            else if (IsMouseClicked(mouseState) &&
                 ShopMenu.GetShotgunPurchaseBounds(screenWidth, screenHeight).Contains(mouseState.Position))
             {
                 // Buy the shotgun only if it has not been bought and there is enough money.
@@ -181,37 +241,23 @@ public class GameScreen
             else if (IsMouseClicked(mouseState) &&
                 ShopMenu.GetPistolUpgradeBounds(screenWidth, screenHeight).Contains(mouseState.Position))
             {
-                // Upgrade the pistol only if there is enough money and it is below the level cap.
-                if (Money >= 1000 && _pistolUpgradeLevel < ShopMenu.MaximumUpgradeLevel)
-                {
-                    // Subtract the pistol upgrade's price.
-                    Money -= 1000;
-                    // Increase the pistol upgrade level.
-                    _pistolUpgradeLevel++;
-                    // Play the purchase sound.
-                    playMenuSound();
-                }
+                OpenUpgradeMenu(false);
+                playMenuSound();
             }
             // Check whether the shotgun is owned and its upgrade button was clicked.
             else if (_shotgunPurchased &&
                 IsMouseClicked(mouseState) &&
                 ShopMenu.GetShotgunUpgradeBounds(screenWidth, screenHeight).Contains(mouseState.Position))
             {
-                // Upgrade the shotgun only if there is enough money and it is below the level cap.
-                if (Money >= 2000 && _shotgunUpgradeLevel < ShopMenu.MaximumUpgradeLevel)
-                {
-                    // Subtract the shotgun upgrade's price.
-                    Money -= 2000;
-                    // Increase the shotgun upgrade level.
-                    _shotgunUpgradeLevel++;
-                    // Play the purchase sound.
-                    playMenuSound();
-                }
+                OpenUpgradeMenu(true);
+                playMenuSound();
             }
-            // Close the shop with Escape.
-            else if (escapePressed)
+            else if (IsMouseClicked(mouseState) &&
+                     ShopMenu.GetNextWaveBounds(screenWidth, screenHeight).Contains(mouseState.Position))
             {
+                playMenuSound();
                 _shopOpen = false;
+                NextWaveStarted?.Invoke(_shotgunPurchased);
             }
         }
         // Handle regular gameplay when no menu is open.
@@ -262,11 +308,68 @@ public class GameScreen
         return GameScreenResult.Continue;
     }//end of Update()
 
+    private void OpenUpgradeMenu(bool shotgun)
+    {
+        _editingShotgun = shotgun;
+        _draftFireRateLevel = GetSavedFireRateLevel();
+        _draftDamageLevel = GetSavedDamageLevel();
+        _upgradeStatus = string.Empty;
+        _upgradeMenuOpen = true;
+    }
+
+    private int GetSavedFireRateLevel() =>
+        _editingShotgun ? _shotgunFireRateLevel : _pistolFireRateLevel;
+
+    private int GetSavedDamageLevel() =>
+        _editingShotgun ? _shotgunDamageLevel : _pistolDamageLevel;
+
+    private int GetUpgradeCost()
+    {
+        int levelsBought = _draftFireRateLevel - GetSavedFireRateLevel() +
+            _draftDamageLevel - GetSavedDamageLevel();
+        return levelsBought * (_editingShotgun ? 2000 : 1000);
+    }
+
+    private void SaveWeaponUpgrades(Action playMenuSound)
+    {
+        int cost = GetUpgradeCost();
+        if (Money < cost)
+        {
+            _upgradeStatus = "Not enough money";
+            return;
+        }
+
+        Money -= cost;
+        if (_editingShotgun)
+        {
+            _shotgunFireRateLevel = _draftFireRateLevel;
+            _shotgunDamageLevel = _draftDamageLevel;
+        }
+        else
+        {
+            _pistolFireRateLevel = _draftFireRateLevel;
+            _pistolDamageLevel = _draftDamageLevel;
+        }
+
+        WeaponUpgradeSaved?.Invoke(_editingShotgun, _draftFireRateLevel, _draftDamageLevel);
+        _upgradeMenuOpen = false;
+        _upgradeStatus = string.Empty;
+        playMenuSound();
+    }
+
     // Sets the player's health and its maximum value.
     public void SetHealth(float current, float maximum)
     {
         // Let the health bar check and store the values.
         _health.Set(current, maximum);
+
+        if (current <= 0 && !_dead)
+        {
+            _dead = true;
+            _deathTime = 0;
+            _shopOpen = false;
+            _paused = false;
+        }
     }
 
     // Sets the player's energy and its maximum value.
@@ -313,12 +416,18 @@ public class GameScreen
         Texture2D shopWeapon,
         // Image used when a weapon is unknown.
         Texture2D unknownWeapon,
+        // Rifle image revealed after wave five.
+        Texture2D waveFiveWeapon,
         // Background image used by the game and menus.
         Texture2D titleBackground,
         // Width of the game window.
         int screenWidth,
         // Height of the game window.
-        int screenHeight)
+        int screenHeight,
+        // Roman numeral for the current wave.
+        string waveRomanNumeral,
+        // The current wave number used to unlock shop items.
+        int currentWave)
     {
         // Find a size multiplier that fits the current window.
         float scale = UIHelper.GetScale(screenWidth, screenHeight);
@@ -404,6 +513,8 @@ public class GameScreen
                 upgrade1Weapon,
                 shopWeapon,
                 unknownWeapon,
+                waveFiveWeapon,
+                currentWave,
                 // Pass the screen size and scale.
                 screenWidth,
                 screenHeight,
@@ -412,8 +523,25 @@ public class GameScreen
                 _shotgunPurchased,
                 // Pass the player's money and upgrade levels.
                 Money,
-                _pistolUpgradeLevel,
-                _shotgunUpgradeLevel);
+                Math.Max(_pistolFireRateLevel, _pistolDamageLevel),
+                Math.Max(_shotgunFireRateLevel, _shotgunDamageLevel));
+        }
+        if (_upgradeMenuOpen)
+        {
+            UpgradeWeaponMenu.Draw(
+                spriteBatch,
+                displayFont,
+                pixel,
+                screenWidth,
+                screenHeight,
+                _editingShotgun,
+                GetSavedFireRateLevel(),
+                GetSavedDamageLevel(),
+                _draftFireRateLevel,
+                _draftDamageLevel,
+                GetUpgradeCost(),
+                Money,
+                _upgradeStatus);
         }
 
         // Draw the pause button when the shop is closed.
@@ -426,6 +554,17 @@ public class GameScreen
         {
             PauseMenu.Draw(spriteBatch, displayFont, pixel, screenWidth, screenHeight, scale);
         }
+        string waveText = "Wave " + waveRomanNumeral;
+        int waveWidth = (int)MathF.Ceiling(displayFont.MeasureString(waveText).X * displayFontScale);
+        UIHelper.DrawText(
+            spriteBatch,
+            displayFont,
+            waveText,
+            screenWidth - margin - waveWidth,
+            margin,
+            Color.Red,
+            displayFontScale);
+
         // Draw the death screen after the player loses.
         if (_dead)
         {
