@@ -62,6 +62,12 @@ public class GameScreen
     public int Money { get; private set; }
     public bool IsPaused => _paused;
     public bool IsShopOpen => _shopOpen;
+
+    // What the player has bought in the shop (read by the weapons).
+    public bool ShotgunPurchased => _shotgunPurchased;
+    public int PistolUpgradeLevel => _pistolUpgradeLevel;
+    public int ShotgunUpgradeLevel => _shotgunUpgradeLevel;
+    
     public bool IsDead => _dead;
     public event Action<bool, int, int> WeaponUpgradeSaved;
     public event Action<bool> NextWaveStarted;

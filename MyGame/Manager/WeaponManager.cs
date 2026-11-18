@@ -15,6 +15,8 @@ namespace MyGame;
 public class WeaponManager
 {
     private readonly List<Weapon> weapons;
+    private readonly Pistol pistol;
+    private readonly Shotgun shotgun;
     private readonly BulletManager bulletManager;
 
     // Index into the weapons list of the weapon the player is holding.
@@ -34,11 +36,28 @@ public class WeaponManager
         bulletManager = new BulletManager(bulletPixel);
 
         // The order matters: the weapon at position 0 is key 1, position 1 is key 2.
-        weapons = new List<Weapon>
-        {
-            new Pistol(),
-            new Shotgun()
-        };
+        pistol = new Pistol();
+        shotgun = new Shotgun();
+
+        // The shotgun stays locked until it is bought in the shop.
+        shotgun.IsUnlocked = false;
+
+        weapons = new List<Weapon> { pistol, shotgun };
+    }
+
+    // ----------
+    // TEMP
+    // ----------
+    // Applies what the player bought in the shop: whether the shotgun is owned and each weapon's upgrade level.
+    public void ApplyShopState(bool shotgunPurchased, int pistolUpgradeLevel, int shotgunUpgradeLevel)
+    {
+        shotgun.IsUnlocked = shotgunPurchased;
+        pistol.UpgradeLevel = pistolUpgradeLevel;
+        shotgun.UpgradeLevel = shotgunUpgradeLevel;
+
+        // A weapon that is not owned (for example after a restart) cannot stay equipped.
+        if (!CurrentWeapon.IsUnlocked)
+            currentIndex = 0;
     }
 
     // Call when gameplay becomes active again (start, resume, restart).
@@ -92,7 +111,7 @@ public class WeaponManager
 
         for (int i = 0; i < weapons.Count; i++)
         {
-            if (keyboard.IsKeyDown(Keys.D1 + i))
+            if (keyboard.IsKeyDown(Keys.D1 + i) && weapons[i].IsUnlocked)
                 currentIndex = i;
         }
 
@@ -126,4 +145,38 @@ public class WeaponManager
     {
         bulletManager.Draw(spriteBatch);
     }
+
+    // ---------------
+    // TEMP
+    // ---------------
+
+    // Small heads-up display in the bottom-left corner: which weapon is equipped and its ammo.
+    public void DrawHud(SpriteBatch spriteBatch, SpriteFont font, Rectangle screenBounds)
+    {
+        string weaponLine = "";
+
+        for (int i = 0; i < weapons.Count; i++)
+        {
+            string label = (i + 1) + ": " + weapons[i].Name +
+                (weapons[i].IsUnlocked ? " Lv" + weapons[i].UpgradeLevel : " (locked)");
+            weaponLine += (i == currentIndex ? "[" + label + "]" : " " + label + " ") + "   ";
+        }
+
+        string statusLine = "Ammo: Infinite    Bullets in flight: " + BulletsInFlight;
+
+        Vector2 position = new Vector2(20, screenBounds.Bottom - 70);
+
+        DrawShadowedText(spriteBatch, font, weaponLine, position, Color.Yellow);
+        DrawShadowedText(spriteBatch, font, statusLine, position + new Vector2(0, 28), Color.White);
+    }
+
+    // Draws text twice (black first, then the real color one pixel up-left) so it
+    // stays readable on any background.
+    private static void DrawShadowedText(
+        SpriteBatch spriteBatch, SpriteFont font, string text, Vector2 position, Color color)
+    {
+        spriteBatch.DrawString(font, text, position + new Vector2(1, 1), Color.Black);
+        spriteBatch.DrawString(font, text, position, color);
+    }
+
 }
