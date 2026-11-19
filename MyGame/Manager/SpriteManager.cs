@@ -75,17 +75,6 @@ public class SpriteManager : Microsoft.Xna.Framework.DrawableGameComponent
         base.LoadContent();
     }
 
-    // =================
-    // TEMP
-    // =================
-    //Raised when an enemy dies; the value is the money it pays out.
-    public event Action<int> EnemyKilled;
-    //Passes the shop state (shotgun owned, upgrade levels) on to the weapons.
-    public void ApplyShopState(bool shotgunPurchased, int pistolUpgradeLevel, int shotgunUpgradeLevel)
-    {
-        weaponManager?.ApplyShopState(shotgunPurchased, pistolUpgradeLevel, shotgunUpgradeLevel);
-    }
-
     protected override void OnEnabledChanged(object sender, EventArgs args)
     {
         base.OnEnabledChanged(sender, args);

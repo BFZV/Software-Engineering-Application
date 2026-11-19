@@ -5,9 +5,6 @@ namespace MyGame;
 
 // Base class for every weapon.
 //
-// INFINITE AMMO: weapons deliberately have no ammo count. The only thing that
-// limits how often a weapon fires is its FireDelay, so it can never run dry.
-//
 // RANGE: every bullet a weapon creates travels from the player until it hits
 // an enemy or reaches the screen boundary (see BulletManager).
 public abstract class Weapon

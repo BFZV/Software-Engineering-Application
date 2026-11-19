@@ -43,6 +43,5 @@ public class Enemy
             health = 0;
     }
 
-    //Money the player receives when this enemy dies.
-    public int CurrencyOnDeath { get; protected set; }
+
 }

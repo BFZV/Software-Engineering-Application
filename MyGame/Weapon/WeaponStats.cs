@@ -39,10 +39,4 @@ public readonly struct WeaponStats
         BulletSize = bulletSize;
         BulletColor = bulletColor;
     }
-
-    // Same weapon numbers with a different damage value (used for shop upgrades).
-    public WeaponStats WithDamage(int damage)
-    {
-        return new WeaponStats(Name, damage, FireDelay, BulletSpeed, BulletSize, BulletColor);
-    }
 }
